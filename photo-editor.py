@@ -13,22 +13,22 @@ class PhotoEditorApp:
         self.original_image = None
         self.history = []  # Stack to hold previous image states
 
-        # Create UI elements
+        # Creating UI elements
         self.frame = tk.Frame(root, bg="#C0C0C0")
         self.frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # Create canvas for image display
+        # Creating canvas for image display
         self.canvas_frame = tk.Frame(self.frame, bg="#FFFFFF")
         self.canvas_frame.pack(fill=tk.BOTH, expand=True)
 
         self.canvas = tk.Canvas(self.canvas_frame, bg="#808080")
         self.canvas.pack(fill=tk.BOTH, expand=True)
 
-        # Button layout
+        # Button layouts
         self.button_frame = tk.Frame(self.frame, bg="#000000")
         self.button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
-        # Define button style
+        # Defining buttons style
         self.button_style = {
             'font': ('Arial', 12, 'bold'),
             'bg': '#D3D3D3',
@@ -67,7 +67,6 @@ class PhotoEditorApp:
                 self.image = Image.open(file_path)
                 self.original_image = self.image.copy()
 
-                # Clear history and add the original image as the first state
                 self.history.clear()
                 self.history.append(self.image.copy())
 
@@ -83,47 +82,43 @@ class PhotoEditorApp:
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
 
-        # Resize image to fit within the canvas size
         self.image.thumbnail((canvas_width, canvas_height))
         self.display_image()
 
     def display_image(self):
         if self.image:
             try:
-                # Convert image to Tkinter-compatible format
                 tk_image = ImageTk.PhotoImage(self.image)
 
-                # Clear existing canvas and display new image
                 self.canvas.delete("all")
                 self.canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
 
-                # Keep reference to image to prevent garbage collection
                 self.canvas.image = tk_image
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to display image: {e}")
 
     def increase_brightness(self):
         if self.image:
-            self.save_state()  # Save current state before modifying
+            self.save_state()  
             enhancer = ImageEnhance.Brightness(self.image)
-            self.image = enhancer.enhance(1.2)  # Increase brightness by 20%
+            self.image = enhancer.enhance(1.2) 
             self.display_image()
         else:
             messagebox.showwarning("Warning", "No image loaded")
 
     def increase_contrast(self):
         if self.image:
-            self.save_state()  # Save current state before modifying
+            self.save_state()  
             enhancer = ImageEnhance.Contrast(self.image)
-            self.image = enhancer.enhance(1.3)  # Increase contrast by 30%
+            self.image = enhancer.enhance(1.3)  
             self.display_image()
         else:
             messagebox.showwarning("Warning", "No image loaded")
 
     def rotate_image(self):
         if self.image:
-            self.save_state()  # Save current state before modifying
-            self.image = self.image.rotate(90, expand=True)  # Rotate 90 degrees
+            self.save_state()  
+            self.image = self.image.rotate(90, expand=True)  
             self.resize_image_to_fit_canvas()
             self.display_image()
         else:
@@ -131,8 +126,8 @@ class PhotoEditorApp:
 
     def convert_grayscale(self):
         if self.image:
-            self.save_state()  # Save current state before modifying
-            self.image = self.image.convert("L")  # Convert image to grayscale
+            self.save_state()  
+            self.image = self.image.convert("L") 
             self.resize_image_to_fit_canvas()
             self.display_image()
         else:
@@ -140,8 +135,8 @@ class PhotoEditorApp:
 
     def flip_image(self):
         if self.image:
-            self.save_state()  # Save current state before modifying
-            self.image = ImageOps.mirror(self.image)  # Flip horizontally
+            self.save_state()  
+            self.image = ImageOps.mirror(self.image)  
             self.resize_image_to_fit_canvas()
             self.display_image()
         else:
@@ -149,7 +144,7 @@ class PhotoEditorApp:
 
     def crop_image(self):
         if self.image:
-            self.save_state()  # Save current state before modifying
+            self.save_state()  
             self.canvas.bind("<ButtonPress-1>", self.on_crop_start)
             self.canvas.bind("<B1-Motion>", self.on_crop_drag)
             self.canvas.bind("<ButtonRelease-1>", self.on_crop_end)
@@ -177,16 +172,16 @@ class PhotoEditorApp:
                 max(self.crop_start[0], crop_end[0]),
                 max(self.crop_start[1], crop_end[1]),
             )
-            self.image = self.image.crop(crop_box)  # Crop the image
+            self.image = self.image.crop(crop_box)  
             self.resize_image_to_fit_canvas()
             self.display_image()
-            self.canvas.delete(self.crop_rect)  # Remove the cropping rectangle
+            self.canvas.delete(self.crop_rect)  
             self.crop_start = None
             self.crop_rect = None
 
     def reset_image(self):
         if self.original_image:
-            self.image = self.original_image.copy()  # Reset to original image
+            self.image = self.original_image.copy()  
             self.resize_image_to_fit_canvas()
             self.display_image()
         else:
@@ -201,7 +196,7 @@ class PhotoEditorApp:
             )
             if file_path:
                 try:
-                    self.image.save(file_path)  # Save the image
+                    self.image.save(file_path)  
                     messagebox.showinfo("Success", f"Image saved as {file_path}")
                 except Exception as e:
                     messagebox.showerror("Error", f"Failed to save image: {e}")
@@ -209,21 +204,18 @@ class PhotoEditorApp:
             messagebox.showwarning("Warning", "No image to save")
 
     def undo(self):
-        if len(self.history) > 1:  # Ensure there's a previous state to undo to
-            self.history.pop()  # Remove current state
-            self.image = self.history[-1]  # Get the previous state
+        if len(self.history) > 1:  
+            self.history.pop()  
+            self.image = self.history[-1] 
             self.display_image()
         else:
             messagebox.showwarning("Warning", "No action to undo")
 
     def save_state(self):
         if self.image:
-            self.history.append(self.image.copy())  # Save the current state to the history stack
+            self.history.append(self.image.copy())  
 
 
-# Create the Tkinter window
 root = tk.Tk()
 app = PhotoEditorApp(root)
-
-# Run the Tkinter event loop
 root.mainloop()
